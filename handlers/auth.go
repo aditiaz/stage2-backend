@@ -24,6 +24,7 @@ import (
 )
 
 // handlerAuth struct here ...
+// ngambil fungsi2 query dari folder repositories auth
 type handlerAuth struct {
 	AuthRepository repositories.AuthRepository
 }
@@ -76,12 +77,15 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponse(data)}
 	json.NewEncoder(w).Encode(response)
+	w.Header().Set("Content-Type", "application/json")
 }
 
 // Create Login method here ...
+// Login adalah fungsi query dari folder repositories
 func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+// mengambil struct Login request :
 	request := new(authdto.LoginRequest)
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -89,7 +93,7 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
+// memasukan steuct Login request ke dalam struct USer
 	user := models.User{
 		Email:    request.Email,
 		Password: request.Password,
@@ -128,11 +132,10 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 	loginResponse := authdto.LoginResponse{
 		Name:     user.Fullname,
 		Email:    user.Email,
-		// Password: user.Password,
+		Password: user.Password,
 		Token:    token,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	response := dto.SuccessResult{Code: http.StatusOK, Data: loginResponse}
 	json.NewEncoder(w).Encode(response)
 
