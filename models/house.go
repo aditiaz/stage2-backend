@@ -13,7 +13,3 @@ type House struct {
 	Description   string `json:"description"`
 	Image_House   string `json:"image_property"`
 }
-
-func (House) TableName() string {
-	return "houses"
-}

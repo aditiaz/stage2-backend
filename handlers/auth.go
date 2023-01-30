@@ -75,7 +75,7 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponse(data)}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseAuth(data)}
 	json.NewEncoder(w).Encode(response)
 	w.Header().Set("Content-Type", "application/json")
 }
@@ -93,7 +93,7 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-// memasukan steuct Login request ke dalam struct USer
+// memasukan steuct Login request ke dalam struct models.User
 	user := models.User{
 		Email:    request.Email,
 		Password: request.Password,
@@ -139,4 +139,17 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 	response := dto.SuccessResult{Code: http.StatusOK, Data: loginResponse}
 	json.NewEncoder(w).Encode(response)
 
+}
+
+func convertResponseAuth(u models.User) authdto.RegisterResponse {
+	return authdto.RegisterResponse{
+		ID:       u.ID,
+		Name:     u.Fullname,
+		Email:    u.Email,
+		Password: u.Password,
+		// Status: u.Status,
+		// Gender: u.Gender,
+		// Address: u.Address,
+	
+	}
 }

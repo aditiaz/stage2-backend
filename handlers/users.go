@@ -15,7 +15,7 @@ type handlerUser struct {
 	UserRepository repositories.UserRepository
 }
 
-func HandlerUser(UserRepository repositories.UserRepository) *handlerUser {
+func HandlerPropertyUser(UserRepository repositories.UserRepository) *handlerUser {
 	return &handlerUser{UserRepository}
 }
 
@@ -43,6 +43,10 @@ func (h *handlerUser) CreateUser(w http.ResponseWriter, r *http.Request) {
 		Fullname:     request.Name,
 		Email:    request.Email,
 		Password: request.Password,
+		Status: request.Status,
+		Gender: request.Gender,
+		Address: request.Address,
+	
 	}
 
 	data, err := h.UserRepository.CreateUser(user)
@@ -56,6 +60,21 @@ func (h *handlerUser) CreateUser(w http.ResponseWriter, r *http.Request) {
 	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponse(data)}
 	json.NewEncoder(w).Encode(response)
 }
+func (h *handlerUser) FindUsers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	users, err := h.UserRepository.FindUsers()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(err.Error())
+	}
+
+	w.WriteHeader(http.StatusOK)
+	response := dto.SuccessResult{Code: http.StatusOK, Data: users}
+	json.NewEncoder(w).Encode(response)
+}
+
+
 
 func convertResponse(u models.User) usersdto.UserResponse {
 	return usersdto.UserResponse{
@@ -63,5 +82,9 @@ func convertResponse(u models.User) usersdto.UserResponse {
 		Name:     u.Fullname,
 		Email:    u.Email,
 		Password: u.Password,
+		Status: u.Status,
+		Gender: u.Gender,
+		Address: u.Address,
+	
 	}
 }

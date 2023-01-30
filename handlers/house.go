@@ -11,7 +11,9 @@ import (
 	"task1/models"
 	"task1/repositories"
 
+	// "github.com/go-playground/locales/id"
 	"github.com/go-playground/validator/v10"
+	// "github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 )
 
@@ -19,7 +21,7 @@ type handlerHouse struct {
 	HouseRepository repositories.HouseRepository
 }
 
-func HandlerProperty(HouseRepository repositories.HouseRepository) *handlerHouse {
+func HandlerPropertyHouse(HouseRepository repositories.HouseRepository) *handlerHouse {
 	return &handlerHouse{HouseRepository}
 }
 
@@ -57,6 +59,11 @@ func (h *handlerHouse)GetHouse(w http.ResponseWriter ,r *http.Request) {
 
 func (h *handlerHouse)CreateHouse(w http.ResponseWriter ,r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
+	// Get dataFile from midleware and store to filename variable here ...
+	dataContext := r.Context().Value("dataFile") 
+	filename := dataContext.(string)            
+
 	// requesting
 	price,_ := strconv.Atoi(r.FormValue("price"))
 	bed_room,_ := strconv.Atoi(r.FormValue("bed_room"))
@@ -73,6 +80,7 @@ func (h *handlerHouse)CreateHouse(w http.ResponseWriter ,r *http.Request) {
 		Bed_Room : bed_room,
         Bath_Room : bath_room,
 		Description  : r.FormValue("description"),
+		Image_House : r.FormValue("image_property"),
 		// Image_House : r.FormValue("image_property"),
 	}
 
@@ -85,15 +93,9 @@ func (h *handlerHouse)CreateHouse(w http.ResponseWriter ,r *http.Request) {
 		return
 	}
 
-	// image
-	// dataContext := r.Context().Value("Error")
-	// var filename string
-	// if dataContext == nil {
-	// 	dataContext := r.Context().Value("dataFile")
-	// 	filename = dataContext.(string)
-	// }
-
+	
 	house := models.House {
+		
 		Price : request.Price,
         Bed_Room : request.Bed_Room,
 		Bath_Room   : request.Bath_Room,
@@ -103,7 +105,7 @@ func (h *handlerHouse)CreateHouse(w http.ResponseWriter ,r *http.Request) {
 		Type_Of_Rent : request.Type_Of_Rent,
 		Amenities  : request.Amenities,
 		Description : request.Description,
-		// Image_House: filename,
+		Image_House: filename,
 	}
 
 
@@ -145,8 +147,8 @@ func (h *handlerHouse)CreateHouse(w http.ResponseWriter ,r *http.Request) {
 	  return
 	}
 	// validation
-	if r.FormValue("name_house") != "" {
-	  house.Name_House = r.FormValue("name_house")
+	if r.FormValue("name_property") != "" {
+	  house.Name_House = r.FormValue("name_property")
 	}
 	Price, _ := strconv.Atoi(r.FormValue("price"))
 	if Price != 0 {
@@ -155,8 +157,8 @@ func (h *handlerHouse)CreateHouse(w http.ResponseWriter ,r *http.Request) {
 	if r.FormValue("city") != "" {
 	  house.City = r.FormValue("city")
 	}
-	if r.FormValue("address_house") != "" {
-	  house.Address_House = r.FormValue("address_house")
+	if r.FormValue("address_property") != "" {
+	  house.Address_House = r.FormValue("address_property")
 	}
 	if r.FormValue("type_of_rent") != "" {
 	  house.Type_Of_Rent = r.FormValue("type_of_rent")
@@ -171,11 +173,12 @@ func (h *handlerHouse)CreateHouse(w http.ResponseWriter ,r *http.Request) {
 	}
 
 	if r.FormValue("Amenities") != "" {
-	  house.Amenities = r.FormValue("Amenities")
+	  house.Amenities = r.FormValue("amenities")
 	}
 	if r.FormValue("Description") != "" {
-	  house.Description = r.FormValue("Description")
+	  house.Description = r.FormValue("description")
 	}
+	
   
 	// image
 	dataContex := r.Context().Value("Error")
@@ -213,12 +216,39 @@ func (h *handlerHouse)CreateHouse(w http.ResponseWriter ,r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
   
+func (h *handlerHouse) DeleteHouse(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+	house, err := h.HouseRepository.GetHouse(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	data, err := h.HouseRepository.DeleteHouse(house)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	response := dto.SuccessResult{Code: http.StatusOK, Data: convertPropertyResponse(data)}
+	json.NewEncoder(w).Encode(response)
+}
   
 
   
   func convertPropertyResponse(r models.House) housedto.Response_Property {
-	return housedto.Response_Property{
-	  ID:               r.ID,
+	  
+	
+	  return housedto.Response_Property{
+ 	
+		ID: r.ID,
 	  Price:            r.Price,
 	  Bed_Room:         r.Bed_Room,
 	  Bath_Room:        r.Bath_Room,
