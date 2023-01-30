@@ -1,4 +1,4 @@
-package dto
+package resultdto
 
 type SuccessResult struct {
 	Code int         `json:"code"`
