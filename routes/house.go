@@ -15,8 +15,7 @@ func HouseRoutes(r *mux.Router) {
 
 	r.HandleFunc("/houses", h.FindHouses).Methods("GET")
 	r.HandleFunc("/house/{id}", h.GetHouse).Methods("GET")
-	r.HandleFunc("/houseCreate",middleware.Auth(middleware.UploadFile(h.CreateHouse))).Methods("POST")
-	r.HandleFunc("/houseUpdate/{id}",middleware.Auth(middleware.UploadFile(h.UpdateHouse))).Methods("PATCH")
-	// r.HandleFunc("/house/{id}", h.UpdateHouse).Methods("PATCH")
+	r.HandleFunc("/houseCreate",middleware.Auth(middleware.UploadFile(h.CreateHouse, "image_property"))).Methods("POST")
+	r.HandleFunc("/houseUpdate/{id}",middleware.Auth(middleware.UploadFile(h.UpdateHouse, "image_property"))).Methods("PATCH")
 	r.HandleFunc("/deleteHouse/{id}", h.DeleteHouse).Methods("DELETE")
 }

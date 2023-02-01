@@ -131,8 +131,7 @@ func (h *handlerHouse)CreateHouse(w http.ResponseWriter ,r *http.Request) {
 	response := dto.SuccessResult{Code: http.StatusOK, Data: convertPropertyResponse(houseGet)}
 	json.NewEncoder(w).Encode(response)
   }
-  
-  // Update data
+ 
   func (h *handlerHouse) UpdateHouse(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
   
@@ -182,7 +181,6 @@ func (h *handlerHouse)CreateHouse(w http.ResponseWriter ,r *http.Request) {
   
 	// image
 	dataContex := r.Context().Value("Error")
-  
 	// fmt.Println(dataContex)
 	if dataContex == nil {
 	  // image
